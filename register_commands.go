@@ -75,3 +75,17 @@ func RegisterSocialGroup(router *dgc.Router) {
 		Handler:     Watch2getherCommand,
 	})
 }
+
+// Registers all commands related to bot games
+func RegisterGamesGroup(router *dgc.Router) {
+	// Register the rndteams command
+	router.RegisterCmd(&dgc.Command{
+		// We want to use 'obj' as the primary name of the command
+		Name:        "rndteams",
+		Description: "Splits players in a voice channel into two random teams",
+		Usage:       "rndteams <source voice> <target voice 1> <target voice 2>",
+		Example:     "rndteams games blue orange",
+		IgnoreCase:  true,
+		Handler:     RandomizeTeams,
+	})
+}

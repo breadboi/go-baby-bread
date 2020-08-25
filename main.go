@@ -78,9 +78,11 @@ func main() {
 		}
 	})
 
-	RegisterInfoGroup(router);
+	RegisterInfoGroup(router)
 
-	RegisterSocialGroup(router);
+	RegisterSocialGroup(router)
+
+	RegisterGamesGroup(router)
 
 	router.Initialize(session)
 }
