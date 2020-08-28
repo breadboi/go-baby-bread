@@ -9,12 +9,12 @@ import (
 	"github.com/Lukaesebrot/dgc"
 )
 
-// Object representing part of the watch2gether json response
+// Watch2getherRoom Object representing part of the watch2gether json response
 type Watch2getherRoom struct {
 	Streamkey string `json:"streamkey"`
 }
 
-// Logic for the w2g command
+// Watch2getherCommand Logic for the w2g command
 func Watch2getherCommand(ctx *dgc.Ctx) {
 	token := LoadConfiguration("config.json").Secrets.Watch2gether
 
@@ -50,13 +50,13 @@ func Watch2getherCommand(ctx *dgc.Ctx) {
 		print(ioerr)
 	}
 
-	unmarshaled_body := Watch2getherRoom{}
+	unmarshaledBody := Watch2getherRoom{}
 
-	unmarshal_error := json.Unmarshal([]byte(body), &unmarshaled_body)
+	unmarshalError := json.Unmarshal([]byte(body), &unmarshaledBody)
 
-	if unmarshal_error != nil {
-		print(unmarshal_error)
+	if unmarshalError != nil {
+		print(unmarshalError)
 	}
 
-	ctx.RespondText("https://www.watch2gether.com/rooms/" + unmarshaled_body.Streamkey)
+	ctx.RespondText("https://www.watch2gether.com/rooms/" + unmarshaledBody.Streamkey)
 }
