@@ -102,7 +102,38 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 						ctx.Session.GuildMemberMove(guild.ID, player, &channel_map["team2"].ID)
 					}
 
-					ctx.RespondText("Success")
+					// Build our embed
+					embed_fields := make([]*discordgo.MessageEmbedField, len(members))
+
+					embed_fields[0] = &discordgo.MessageEmbedField{
+						Name:  "Team 1",
+						Value: "",
+					}
+
+					embed_fields[1] = &discordgo.MessageEmbedField{
+						Name:  "Team 2",
+						Value: "",
+					}
+
+					for _, member := range team_one {
+						current_member, _ := ctx.Session.GuildMember(guild.ID, member)
+						embed_fields[0].Value += current_member.Mention()
+					}
+
+					for _, member := range team_two {
+						current_member, _ := ctx.Session.GuildMember(guild.ID, member)
+						embed_fields[1].Value += current_member.Mention()
+					}
+
+					embed_message := &discordgo.MessageEmbed{
+						Color:       0x00ff00, // Green
+						Description: "Please stay in your assigned voice channels.",
+						Title:       "Baby Bread Team Randomizer",
+						Fields:      embed_fields,
+					}
+
+					ctx.RespondEmbed(embed_message)
+
 				} else {
 					ctx.RespondText("You need more than one player to create a match...")
 				}
