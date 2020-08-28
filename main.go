@@ -57,12 +57,12 @@ func main() {
 	// Logging command usage
 	router.RegisterMiddleware(func(next dgc.ExecutionHandler) dgc.ExecutionHandler {
 		return func(ctx *dgc.Ctx) {
-			message_content := ctx.Event.Content
-			guild, guild_err := ctx.Session.Guild(ctx.Event.GuildID)
+			messageContent := ctx.Event.Content
+			guild, guildError := ctx.Session.Guild(ctx.Event.GuildID)
 
-			log := message_content
+			log := messageContent
 
-			if guild_err == nil {
+			if guildError == nil {
 				log += (" - Executed in: " + guild.Name)
 			}
 

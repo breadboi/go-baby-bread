@@ -4,7 +4,7 @@ import (
 	"github.com/Lukaesebrot/dgc"
 )
 
-// Registers all commands related to bot info
+// RegisterInfoGroup Registers all commands related to bot info
 func RegisterInfoGroup(router *dgc.Router) {
 	// Register the ping command
 	router.RegisterCmd(&dgc.Command{
@@ -62,7 +62,7 @@ func RegisterInfoGroup(router *dgc.Router) {
 	})
 }
 
-// Registers all commands related to bot social
+// RegisterSocialGroup Registers all commands related to bot social
 func RegisterSocialGroup(router *dgc.Router) {
 	// Register the w2g command
 	router.RegisterCmd(&dgc.Command{
@@ -76,7 +76,7 @@ func RegisterSocialGroup(router *dgc.Router) {
 	})
 }
 
-// Registers all commands related to bot games
+// RegisterGamesGroup Registers all commands related to bot games
 func RegisterGamesGroup(router *dgc.Router) {
 	// Register the rndteams command
 	router.RegisterCmd(&dgc.Command{

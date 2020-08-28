@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-// Represents our config file
+// Config Represents our config file
 type Config struct {
 	Secrets struct {
 		Watch2gether string `json:"w2g"`
@@ -14,12 +14,7 @@ type Config struct {
 	} `json:"secrets"`
 }
 
-/**
- * @brief Handles reading our config file and returning
- * a Config object that represents the file's contents.
- *
- * @param file Represents the filepath to config.json
- */
+// LoadConfiguration Handles reading our config file and returning a Config object that represents the file's contents.
 func LoadConfiguration(file string) Config {
 	var config Config
 
