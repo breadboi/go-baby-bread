@@ -84,5 +84,7 @@ func main() {
 
 	RegisterGamesGroup(router)
 
+	RegisterOwnerGroup(router)
+
 	router.Initialize(session)
 }

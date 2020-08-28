@@ -89,3 +89,17 @@ func RegisterGamesGroup(router *dgc.Router) {
 		Handler:     RandomizeTeams,
 	})
 }
+
+// RegisterOwnerGroup Registers all owner related commands
+func RegisterOwnerGroup(router *dgc.Router) {
+	// Register the SetGame command
+	router.RegisterCmd(&dgc.Command{
+		// We want to use 'obj' as the primary name of the command
+		Name:        "setgame",
+		Description: "Sets the current game (requires owner)",
+		Usage:       "setgame <game>",
+		Example:     "setgame RocketLeague",
+		IgnoreCase:  true,
+		Handler:     SetGame,
+	})
+}
