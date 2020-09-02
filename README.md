@@ -27,7 +27,7 @@ Verified Discord bot (Rewrite of it's C# brother)
 * Watch2gether room generation
 * Random Giveaways **(Undergoing rewrite from C#)**
 * Mafia **(Undergoing rewrite from C#)**
-* Team Randomizer **(Undergoing rewrite from C#)**
+* Team Randomizer
 * Channel Lockdown **(Undergoing rewrite from C#)**
 * Server Specific Settings **(Undergoing rewrite from C#)**
 
