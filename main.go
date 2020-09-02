@@ -36,7 +36,10 @@ func main() {
 	router := dgc.Create(&dgc.Router{
 		// We will allow '!' and 'example!' as the bot prefixes
 		Prefixes: []string{
-			"!",
+			"bby",
+			"bread",
+			"babybread",
+			"$$$",
 		},
 		IgnorePrefixCase: true,
 		BotsAllowed:      false,
@@ -47,7 +50,7 @@ func main() {
 
 		// This handler gets called if the bot just got pinged (no argument provided)
 		PingHandler: func(ctx *dgc.Ctx) {
-			ctx.RespondText("Hello")
+			ctx.RespondText("Hello, if you need help, join my discord. Type bbysupport for a link.")
 		},
 	})
 
@@ -77,6 +80,8 @@ func main() {
 			next(ctx)
 		}
 	})
+
+	/* Register Groups */
 
 	RegisterInfoGroup(router)
 
