@@ -8,7 +8,6 @@ import (
 func RegisterInfoGroup(router *dgc.Router) {
 	// Register the ping command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "ping",
 		Description: "Responds with 'pong!'",
 		Usage:       "ping",
@@ -19,7 +18,6 @@ func RegisterInfoGroup(router *dgc.Router) {
 
 	// Register the info command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "info",
 		Description: "Provides basic bot info",
 		Usage:       "info",
@@ -30,7 +28,6 @@ func RegisterInfoGroup(router *dgc.Router) {
 
 	// Register the support command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "support",
 		Description: "Provides a link to the support discord",
 		Usage:       "support",
@@ -41,7 +38,6 @@ func RegisterInfoGroup(router *dgc.Router) {
 
 	// Register the uptime command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "uptime",
 		Description: "Displays the current uptime of the bot",
 		Usage:       "uptime",
@@ -52,7 +48,6 @@ func RegisterInfoGroup(router *dgc.Router) {
 
 	// Register the uptime command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "invite",
 		Description: "Provides a link to add me to your server",
 		Usage:       "invite",
@@ -66,7 +61,6 @@ func RegisterInfoGroup(router *dgc.Router) {
 func RegisterSocialGroup(router *dgc.Router) {
 	// Register the w2g command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "w2g",
 		Description: "Generates a link to a private watch2gether room",
 		Usage:       "w2g <Video Link>",
@@ -80,12 +74,34 @@ func RegisterSocialGroup(router *dgc.Router) {
 func RegisterGamesGroup(router *dgc.Router) {
 	// Register the rndteams command
 	router.RegisterCmd(&dgc.Command{
-		// We want to use 'obj' as the primary name of the command
 		Name:        "rndteams",
 		Description: "Splits players in a voice channel into two random teams",
 		Usage:       "rndteams <source voice> <target voice 1> <target voice 2>",
 		Example:     "rndteams games blue orange",
 		IgnoreCase:  true,
 		Handler:     RandomizeTeams,
+	})
+}
+
+// RegisterOwnerGroup Registers all owner related commands
+func RegisterOwnerGroup(router *dgc.Router) {
+	// Register the SetGame command
+	router.RegisterCmd(&dgc.Command{
+		Name:        "setgame",
+		Description: "Sets the current game (requires owner)",
+		Usage:       "setgame <game>",
+		Example:     "setgame RocketLeague",
+		IgnoreCase:  true,
+		Handler:     SetGame,
+	})
+
+	// Register the Announcement command
+	router.RegisterCmd(&dgc.Command{
+		Name:        "announcement",
+		Description: "Sends bot updates to all server owners (requires owner)",
+		Usage:       "announcement <message>",
+		Example:     "announcement This is an example message",
+		IgnoreCase:  true,
+		Handler:     Announcement,
 	})
 }
