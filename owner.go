@@ -3,7 +3,7 @@ package main
 import (
 	"strconv"
 
-	"github.com/Lukaesebrot/dgc"
+	"github.com/lus/dgc"
 )
 
 // SetGame Set the current game the bot is playing
@@ -23,10 +23,10 @@ func SetGame(ctx *dgc.Ctx) {
 
 			statusMessage := "Servers: " + strconv.Itoa(guildCount) + " | Users: " + strconv.Itoa(userCount)
 
-			ctx.Session.UpdateStatus(0, statusMessage)
+			ctx.Session.UpdateGameStatus(0, statusMessage)
 
 		} else {
-			ctx.Session.UpdateStatus(0, game)
+			ctx.Session.UpdateGameStatus(0, game)
 		}
 	}
 }

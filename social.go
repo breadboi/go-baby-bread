@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/Lukaesebrot/dgc"
+	"github.com/lus/dgc"
 )
 
 // Watch2getherRoom Object representing part of the watch2gether json response

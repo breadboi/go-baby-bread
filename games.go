@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/Lukaesebrot/dgc"
+	"github.com/lus/dgc"
 	"github.com/bwmarrin/discordgo"
 )
 
