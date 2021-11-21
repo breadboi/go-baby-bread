@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/Lukaesebrot/dgc"
+	"github.com/lus/dgc"
 )
 
 // RegisterInfoGroup Registers all commands related to bot info
