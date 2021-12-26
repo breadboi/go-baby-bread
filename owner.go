@@ -2,18 +2,19 @@ package main
 
 import (
 	"strconv"
+	"strings"
 
-	"github.com/lus/dgc"
+	"github.com/bwmarrin/discordgo"
 )
 
 // SetGame Set the current game the bot is playing
-func SetGame(ctx *dgc.Ctx) {
-	if ctx.Event.Author.ID == "112068607864815616" {
-		game := ctx.Arguments.Get(0).Raw()
+func SetGame(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Message.Author.ID == "112068607864815616" {
+		game := i.ApplicationCommandData().Options[0].StringValue()
 		if game == "users" {
-			guilds := ctx.Session.State.Guilds
+			guilds := dgoSession.State.Guilds
 
-			// Inaccurate
+			// Inaccurate, implement a set to get an accurate user count
 			userCount := 0
 			for _, guild := range guilds {
 				userCount += guild.MemberCount
@@ -23,33 +24,45 @@ func SetGame(ctx *dgc.Ctx) {
 
 			statusMessage := "Servers: " + strconv.Itoa(guildCount) + " | Users: " + strconv.Itoa(userCount)
 
-			ctx.Session.UpdateGameStatus(0, statusMessage)
+			dgoSession.UpdateGameStatus(0, statusMessage)
 
 		} else {
-			ctx.Session.UpdateGameStatus(0, game)
+			dgoSession.UpdateGameStatus(0, game)
 		}
 	}
 }
 
 // Announcement Sends bot updates to all server owners
-func Announcement(ctx *dgc.Ctx) {
-	if ctx.Event.Author.ID == "112068607864815616" {
-		message := ctx.Arguments.AsSingle().Raw()
-		guilds := ctx.Session.State.Guilds
+func Announcement(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+	if i.Message.Author.ID == "112068607864815616" {
+		message := i.ApplicationCommandData().Options[0].StringValue()
+		guilds := dgoSession.State.Guilds
+
+		builtResponse := strings.Builder{}
+		builtResponse.WriteString("Error creating direct message channels with the following users")
 
 		for _, guild := range guilds {
 			ownerID := guild.OwnerID
-			ownerDM, userError := ctx.Session.UserChannelCreate(ownerID)
+			ownerDM, userError := dgoSession.UserChannelCreate(ownerID)
 
 			if userError != nil {
-				ctx.RespondText("Error, a direct message could not be created for " + ownerID)
+				builtResponse.WriteString(ownerID)
 			} else {
-				_, sendError := ctx.Session.ChannelMessageSend(ownerDM.ID, message)
+				_, sendError := dgoSession.ChannelMessageSend(ownerDM.ID, message)
 
 				if sendError != nil {
-					ctx.RespondText("Error, a direct message could not be sent to " + ownerID)
+					builtResponse.WriteString(ownerID)
 				}
 			}
+		}
+
+		if builtResponse.Len() > 1 {
+			dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+				Type: discordgo.InteractionResponseChannelMessageWithSource,
+				Data: &discordgo.InteractionResponseData{
+					Content: builtResponse.String(),
+				},
+			})
 		}
 	}
 }

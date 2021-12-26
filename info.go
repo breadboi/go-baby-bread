@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/lus/dgc"
 	"time"
+
+	"github.com/bwmarrin/discordgo"
 )
 
 var startTime time.Time
@@ -12,28 +13,32 @@ func init() {
 	startTime = time.Now()
 }
 
-// PingCommand Logic for the ping command
-func PingCommand(ctx *dgc.Ctx) {
-	// Respond with the just set custom object
-	ctx.RespondText("Pong")
-}
-
 // InfoCommand Logic for the info command
-func InfoCommand(ctx *dgc.Ctx) {
-	ctx.RespondText("Hello, I'm Baby Bread, my soul is golang :D")
+func InfoCommand(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+	dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "Hi! I'm a discord bot programmed by Bread boi#0001. I was created using Go and discordgo.",
+		},
+	})
 }
 
 // SupportCommand Logic for the support command
-func SupportCommand(ctx *dgc.Ctx) {
-	ctx.RespondText("discord.gg/UVpTZgS")
+func SupportCommand(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+	dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "discord.gg/UVpTZgS",
+		},
+	})
 }
 
 // UptimeCommand Logic to get the uptime for the bot
-func UptimeCommand(ctx *dgc.Ctx) {
-	ctx.RespondText("I've been live for: " + time.Since(startTime).String())
-}
-
-// InviteCommand Logic to get the bot invite link
-func InviteCommand(ctx *dgc.Ctx) {
-	ctx.RespondText("To add Baby Bread to your server, follow this link.\nhttps://discordapp.com/oauth2/authorize?client_id=360277926966591488&scope=bot&permissions=536345815")
+func UptimeCommand(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+	dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "I've been live for: " + time.Since(startTime).String(),
+		},
+	})
 }

@@ -1,95 +1,96 @@
 package main
 
 import (
-	"fmt"
+	"flag"
+	"log"
 	"os"
 	"os/signal"
-	"syscall"
 
-	"github.com/lus/dgc"
 	"github.com/bwmarrin/discordgo"
 )
 
-func main() {
+// Bot parameters
+var (
+	GuildID        = flag.String("guild", "", "Test guild ID. If not passed - bot registers commands globally")
+	BotToken       = flag.String("token", LoadConfiguration("config.json").Secrets.Discord, "Bot access token")
+	RemoveCommands = flag.Bool("rmcmd", true, "Remove all commands after shutdowning or not")
+)
 
-	// Bot Startup
-	token := LoadConfiguration("config.json").Secrets.Discord
-	session, err := discordgo.New("Bot " + token)
+var dgoSession *discordgo.Session
 
+func init() { flag.Parse() }
+
+func init() {
+	var err error
+	dgoSession, err = discordgo.New("Bot " + *BotToken)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Invalid bot parameters: %v", err)
 	}
+}
 
-	err = session.Open()
-	if err != nil {
-		panic(err)
+var (
+	commands = []*discordgo.ApplicationCommand{
+		{
+			Name:        "bot-info",
+			Description: "Provides basic bot information",
+		},
+		{
+			Name:        "bot-support",
+			Description: "Provides a link to the support discord",
+		},
+		{
+			Name:        "bot-uptime",
+			Description: "Provides a link to the support discord",
+		},
+		{
+			Name:        "w2g",
+			Description: "Generates a link to a private watch2gether rooms.",
+			Options: []*discordgo.ApplicationCommandOption{
+				{
+					Type:        discordgo.ApplicationCommandOptionString,
+					Name:        "video-url",
+					Description: "Provide a URL if you want a video preloaded into the room.",
+					Required:    false,
+				},
+			},
+		},
 	}
+	commandHandlers = map[string]func(dgoSession *discordgo.Session, i *discordgo.InteractionCreate){
+		"bot-info":    InfoCommand,
+		"bot-support": SupportCommand,
+		"bot-uptime":  UptimeCommand,
+		"w2g":         Watch2getherCommand,
+	}
+)
 
-	// Wait for the user to cancel the process
-	defer func() {
-		sc := make(chan os.Signal, 1)
-		signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-		<-sc
-	}()
-
-	// Create a dgc router
-	router := dgc.Create(&dgc.Router{
-		// We will allow '!' and 'example!' as the bot prefixes
-		Prefixes: []string{
-			"bby",
-			"bread",
-			"babybread",
-			"$$$",
-		},
-		IgnorePrefixCase: true,
-		BotsAllowed:      false,
-		Commands:         []*dgc.Command{},
-
-		// We may inject our middlewares in here, but we will also use the corresponding method later on
-		Middlewares: []dgc.Middleware{},
-
-		// This handler gets called if the bot just got pinged (no argument provided)
-		PingHandler: func(ctx *dgc.Ctx) {
-			ctx.RespondText("Hello, if you need help, join my discord. Type bbysupport for a link.")
-		},
-	})
-
-	// Register the default help command
-	router.RegisterDefaultHelpCommand(session, nil)
-
-	// Logging command usage
-	router.RegisterMiddleware(func(next dgc.ExecutionHandler) dgc.ExecutionHandler {
-		return func(ctx *dgc.Ctx) {
-			messageContent := ctx.Event.Content
-			guild, guildError := ctx.Session.Guild(ctx.Event.GuildID)
-
-			log := messageContent
-
-			if guildError == nil {
-				log += (" - Executed in: " + guild.Name)
-			}
-
-			// Inject a custom object into the context
-			ctx.CustomObjects.Set("Command", log)
-
-			// You can retrieve the object like this
-			obj := ctx.CustomObjects.MustGet("Command").(string)
-			fmt.Println(obj)
-
-			// Call the next execution handler
-			next(ctx)
+func init() {
+	dgoSession.AddHandler(func(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+		if h, ok := commandHandlers[i.ApplicationCommandData().Name]; ok {
+			h(dgoSession, i)
 		}
 	})
+}
 
-	/* Register Groups */
+func main() {
+	dgoSession.AddHandler(func(dgoSession *discordgo.Session, r *discordgo.Ready) {
+		log.Println("Bot is up!")
+	})
+	err := dgoSession.Open()
+	if err != nil {
+		log.Fatalf("Cannot open the session: %v", err)
+	}
 
-	RegisterInfoGroup(router)
+	for _, v := range commands {
+		_, err := dgoSession.ApplicationCommandCreate(dgoSession.State.User.ID, *GuildID, v)
+		if err != nil {
+			log.Panicf("Cannot create '%v' command: %v", v.Name, err)
+		}
+	}
 
-	RegisterSocialGroup(router)
+	defer dgoSession.Close()
 
-	RegisterGamesGroup(router)
-
-	RegisterOwnerGroup(router)
-
-	router.Initialize(session)
+	stop := make(chan os.Signal)
+	signal.Notify(stop, os.Interrupt)
+	<-stop
+	log.Println("Gracefully shutdowning")
 }

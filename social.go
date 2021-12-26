@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/lus/dgc"
+	"github.com/bwmarrin/discordgo"
 )
 
 // Watch2getherRoom Object representing part of the watch2gether json response
@@ -15,27 +15,27 @@ type Watch2getherRoom struct {
 }
 
 // Watch2getherCommand Logic for the w2g command
-func Watch2getherCommand(ctx *dgc.Ctx) {
+func Watch2getherCommand(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
 	token := LoadConfiguration("config.json").Secrets.Watch2gether
 
 	// Default url if one isn't provided
 	url := "https://www.youtube.com/watch?v=DWcJFNfaw9c"
 
-	if ctx.Arguments.Amount() > 0 {
-		url = ctx.Arguments.Get(0).Raw()
+	if len(i.ApplicationCommandData().Options) > 0 {
+		url = i.ApplicationCommandData().Options[0].StringValue()
 	}
 
 	// Create our request
 	reqBody, marsherr := json.Marshal(map[string]string{
-		"share":   url,
-		"api_key": token,
+		"share":       url,
+		"w2g_api_key": token,
 	})
 
 	if marsherr != nil {
 		print(marsherr)
 	}
 
-	resp, posterr := http.Post("https://www.watch2gether.com/rooms/create.json",
+	resp, posterr := http.Post("https://w2g.tv/rooms/create.json",
 		"application/json", bytes.NewBuffer(reqBody))
 
 	if posterr != nil {
@@ -58,5 +58,10 @@ func Watch2getherCommand(ctx *dgc.Ctx) {
 		print(unmarshalError)
 	}
 
-	ctx.RespondText("https://www.watch2gether.com/rooms/" + unmarshaledBody.Streamkey)
+	dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Content: "https://www.watch2gether.com/rooms/" + unmarshaledBody.Streamkey,
+		},
+	})
 }

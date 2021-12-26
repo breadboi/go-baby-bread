@@ -5,14 +5,14 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/lus/dgc"
 	"github.com/bwmarrin/discordgo"
 )
 
 // GetVoiceMembers Returns a list of member IDs as strings from the channel
-func GetVoiceMembers(ctx *dgc.Ctx, channelID string) []string {
+func GetVoiceMembers(dgoSession *discordgo.Session, i *discordgo.InteractionCreate, channelID string) []string {
 	var members []string
-	guild, err := ctx.Session.State.Guild(ctx.Event.GuildID)
+
+	guild, err := dgoSession.Guild(i.GuildID)
 
 	if err != nil {
 		return members
@@ -35,9 +35,9 @@ func RemoveMember(s []string, i int) []string {
 }
 
 // RandomizeTeams Logic for the randomizeteams command
-func RandomizeTeams(ctx *dgc.Ctx) {
-	if ctx.Arguments.Amount() == 3 {
-		guild, guildError := ctx.Session.Guild(ctx.Event.GuildID)
+func RandomizeTeams(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
+	if len(i.ApplicationCommandData().Options) == 3 {
+		guild, guildError := dgoSession.Guild(i.GuildID)
 
 		if guildError != nil {
 			print(guildError)
@@ -48,7 +48,7 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 			}
 
 			hasPermission := false
-			for _, role := range ctx.Event.Member.Roles {
+			for _, role := range i.Member.Roles {
 				if guildRoleMap[role].Name == "Matchmaker" {
 					hasPermission = true
 				}
@@ -56,13 +56,13 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 
 			if hasPermission {
 				// Get source and destination arguments
-				sourceInput := ctx.Arguments.Get(0).Raw()
-				destOneInput := ctx.Arguments.Get(1).Raw()
-				destTwoInput := ctx.Arguments.Get(2).Raw()
+				sourceInput := i.ApplicationCommandData().Options[0].StringValue()
+				destOneInput := i.ApplicationCommandData().Options[1].StringValue()
+				destTwoInput := i.ApplicationCommandData().Options[2].StringValue()
 
 				channelMap := make(map[string]*discordgo.Channel) // [channel_name]channel
 
-				guildState, guildError := ctx.Session.State.Guild(guild.ID)
+				guildState, guildError := dgoSession.Guild(guild.ID)
 
 				if guildError != nil {
 					print(guildError)
@@ -80,7 +80,7 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 				}
 
 				// Get everyone in the source voice channel
-				members := GetVoiceMembers(ctx, channelMap["source"].ID)
+				members := GetVoiceMembers(dgoSession, i, channelMap["source"].ID)
 
 				// Randomize the members
 				rand.Seed(time.Now().UnixNano())
@@ -88,7 +88,12 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 
 				teamSize := len(members) / 2
 
-				ctx.RespondText("Team size: " + strconv.Itoa(teamSize))
+				dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "Team size: " + strconv.Itoa(teamSize),
+					},
+				})
 
 				// Ensure we don't panic
 				if teamSize >= 1 {
@@ -96,11 +101,11 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 					teamTwo := members[teamSize:]
 
 					for _, player := range teamOne {
-						ctx.Session.GuildMemberMove(guild.ID, player, &channelMap["team1"].ID)
+						dgoSession.GuildMemberMove(guild.ID, player, &channelMap["team1"].ID)
 					}
 
 					for _, player := range teamTwo {
-						ctx.Session.GuildMemberMove(guild.ID, player, &channelMap["team2"].ID)
+						dgoSession.GuildMemberMove(guild.ID, player, &channelMap["team2"].ID)
 					}
 
 					// Build our embed
@@ -117,12 +122,12 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 					}
 
 					for _, member := range teamOne {
-						currentMember, _ := ctx.Session.GuildMember(guild.ID, member)
+						currentMember, _ := dgoSession.GuildMember(guild.ID, member)
 						embedFields[0].Value += currentMember.Mention()
 					}
 
 					for _, member := range teamTwo {
-						currentMember, _ := ctx.Session.GuildMember(guild.ID, member)
+						currentMember, _ := dgoSession.GuildMember(guild.ID, member)
 						embedFields[1].Value += currentMember.Mention()
 					}
 
@@ -133,18 +138,26 @@ func RandomizeTeams(ctx *dgc.Ctx) {
 						Fields:      embedFields,
 					}
 
-					ctx.RespondEmbed(embedMessage)
+					dgoSession.ChannelMessageSendEmbed(i.ChannelID, embedMessage)
 
 				} else {
-					ctx.RespondText("You need more than one player to create a match...")
+					dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+						Type: discordgo.InteractionResponseChannelMessageWithSource,
+						Data: &discordgo.InteractionResponseData{
+							Content: "You need more than one player to create a match...",
+						},
+					})
 				}
 
 			} else {
-				ctx.RespondText("You don't have the correct role to do this...")
+				dgoSession.InteractionRespond(i.Interaction, &discordgo.InteractionResponse{
+					Type: discordgo.InteractionResponseChannelMessageWithSource,
+					Data: &discordgo.InteractionResponseData{
+						Content: "You don't have the correct role to do this...",
+					},
+				})
 			}
 		}
 
-	} else {
-		ctx.RespondText("Too few arguments were provided...")
 	}
 }
