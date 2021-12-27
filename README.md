@@ -29,7 +29,6 @@ Verified Discord bot (Rewrite of it's C# brother)
 * Mafia **(Undergoing rewrite from C#)**
 * Team Randomizer
 * Channel Lockdown **(Undergoing rewrite from C#)**
-* Server Specific Settings **(Undergoing rewrite from C#)**
 
 
 ## Contributing
