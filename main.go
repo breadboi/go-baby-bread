@@ -40,7 +40,7 @@ var (
 		},
 		{
 			Name:        "bot-uptime",
-			Description: "Provides a link to the support discord",
+			Description: "Provides some stats on how long the bot has been online.",
 		},
 		{
 			Name:        "w2g",
