@@ -16,7 +16,7 @@ type Watch2getherRoom struct {
 
 // Watch2getherCommand Logic for the w2g command
 func Watch2getherCommand(dgoSession *discordgo.Session, i *discordgo.InteractionCreate) {
-	token := LoadConfiguration("config.json").Secrets.Watch2gether
+	token := LoadConfiguration("./configs/config.json").Secrets.Watch2gether
 
 	// Default url if one isn't provided
 	url := "https://www.youtube.com/watch?v=DWcJFNfaw9c"
