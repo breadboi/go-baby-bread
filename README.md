@@ -6,7 +6,7 @@ Verified Discord bot (Rewrite of it's C# brother)
 - Golang
 - config.json ( For utilities.go )
 
-## config.json
+## /configs/config.json
 ```
 {
     "secrets": 
@@ -17,10 +17,20 @@ Verified Discord bot (Rewrite of it's C# brother)
 }
 ```
 
-## Startup
-
+## Build and Run
+### Local
 ```bash
-> go run .
+> go get ./... ; go build ./... ; ./main
+```
+### Docker Compose
+```yaml
+version: '3'
+
+services:
+  go-baby-bread:
+    image: ghcr.io/breadboi/go-baby-bread:latest
+    volumes:
+      - /path/to/go-baby-bread-configs:/app/configs:ro
 ```
 
 ## Major Features
